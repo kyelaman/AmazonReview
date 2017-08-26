@@ -1,0 +1,46 @@
+apply plugin: 'java'
+apply plugin: 'jacoco'
+
+sourceCompatibility = 1.8
+
+dependencies {
+  testCompile group: 'junit', name: 'junit', version: "4.+"
+  compile "org.apache.commons:commons-lang3:3.4"
+  compile "org.jsoup:jsoup:1.7.2"
+  testCompile "org.mockito:mockito-core:1.+"
+  
+}
+
+allprojects {
+  tasks.withType(JavaCompile) {
+    options.compilerArgs << '-Xlint:deprecation' << '-Xlint:unchecked'
+  }
+}
+
+repositories {
+  mavenCentral()
+}
+
+task(runapp, dependsOn: 'classes', type: JavaExec) {
+  
+	main = 'Application.Driver.AmazonBookReviews'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+jacocoTestReport {
+    doFirst{
+        classDirectories = fileTree(
+					dir: './build/classes/main/Application',
+					excludes: ['**/Driver/*.class']
+				)
+    }
+
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination "build/reports/coverageHtml"
+    }
+}
+
+
+defaultTasks 'clean', 'test', 'jacocoTestReport', 'runapp'
